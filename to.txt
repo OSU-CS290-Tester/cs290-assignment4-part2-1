@@ -1,0 +1,3 @@
+Start: Wed, 11 Feb 2015 17:01:17 -0800
+End: Wed, 11 Feb 2015 20:47:17 -0800
+Tasks: Finished the add video form. Created a table that is populated with all pre-existing vids. Stopped working at the delete vid button.
