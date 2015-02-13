@@ -17,9 +17,9 @@ if ($mysqli->connect_errno) {
 	echo "Failed to connect to MYSQL <br>";
 }
 
-// If this is a POST, then we are attempting to add a video
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	if (count($_POST) > 0 && isset($_POST['vidName']) && isset($_POST['vidCat']) && isset($_POST['vidLen'])) {
+    // Take care of the case where we are adding a video
 
 		// Prepare the insert statment
 		if (!($stmt = $mysqli->prepare("INSERT INTO videos(name, category, length, rented) VALUES (?, ?, ?, ?)"))) {
@@ -44,11 +44,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		    die();
 		}
 	}
-}
+  else if (count($_POST) > 0 && isset($_POST['deletevid'])) {
+    // Take care of the case where we are deleting a video 
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-  if (count($_GET) > 0 && isset($_GET['deleteall']) && $_GET['deleteall'] === 'true') {
-  	// Add code here to delete all vids
+    // Prepare the insert statment
+    if (!($stmt = $mysqli->prepare("DELETE FROM videos WHERE name=?"))) {
+      echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+      die();
+    }
+
+    // Add values to SQL insert statement
+    $vidname = $_POST['deletevid'];
+    if (!$stmt->bind_param("s", $vidname)) {
+        echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+        die();
+    }
+
+    // Execute sql statement
+    if (!$stmt->execute()) {
+        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+        die();
+    }
+  }
+  else if (count($_POST) > 0 && isset($_POST['checkout']) && isset($_POST['name'])) {
+    // Take care of the case where we are checking in/out a video 
+
+    // Prepare the insert statment
+    if (!($stmt = $mysqli->prepare("UPDATE videos SET rented=? WHERE name=?"))) {
+      echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+      die();
+    }
+
+    // Add values to SQL insert statement
+    $vidname = $_POST['name'];
+    $rented = $_POST['checkout'] === "true" ? 1 : 0; // 1 means true. 0 means false.
+    if (!$stmt->bind_param("is", $rented, $vidname)) {
+        echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+        die();
+    }
+
+    // Execute sql statement
+    if (!$stmt->execute()) {
+        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+        die();
+    }
+  }
+  else if (count($_POST) > 0 && isset($_POST['deleteall']) && $_POST['deleteall'] === 'true') {
+    // Delete all vids 
+
+    echo "in the deets";
+    // Prepare the insert statment
+    if (!($stmt = $mysqli->prepare("DELETE FROM videos"))) {
+      echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+      die();
+    }
+
+    // Execute sql statement
+    if (!$stmt->execute()) {
+        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+        die();
+    }
   }
 }
 
@@ -77,74 +132,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 		</form>
 	</div>
 	<div>
-		<form action="https://web.engr.oregonstate.edu/~toke/a4p2/videos.php" method="GET">
-			<fieldset>
-				<legend>Delete all videos:</legend>
-				<fieldset>
-					<input type="hidden" name="deleteall" value="true">
-					<input type="submit" value="Delete All">
-				</fieldset>
-			</fieldset>
-		</form>	
+    <br>
+    <input type="button" value="Delete All Videos" onclick="deleteAllVids();">	
 	</div>
-	<div>
-    <h1>Video List: </h1>
-		<?php
-			if (!($stmt = $mysqli->prepare("SELECT name, category, length, rented FROM videos"))) {
-		    echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
-			}
+  <h1>Video List:</h1>
+	<div id="vid-list">
+    <div id="vid-list-table">
+      <?php
+        if (!($stmt = $mysqli->prepare("SELECT name, category, length, rented FROM videos"))) {
+  				echo "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+  			}
 
-			if (!$stmt->execute()) {
-		    echo "Execute failed: (" . $mysqli->errno . ") " . $mysqli->error;
-			}
+  			if (!$stmt->execute()) {
+  		    echo "Execute failed: (" . $mysqli->errno . ") " . $mysqli->error;
+  			}
+  			
+  			if (!($res = $stmt->get_result())) {
+  		    echo "Getting result set failed: (" . $stmt->errno . ") " . $stmt->error;
+  			}
 
-			if (!($res = $stmt->get_result())) {
-		    echo "Getting result set failed: (" . $stmt->errno . ") " . $stmt->error;
-			}
+  			if ($res->num_rows === 0) {
+  				echo "No videos exist\n";
+  			}
+  			else {
+          echo "<table>\n";
+  				// Output Column Headers
+          echo "<tr>\n"
+          ."<td>Video Name</td>\n"
+          ."<td>Video Category</td>\n"
+          ."<td>Video Length</td>\n"
+          ."<td>Video Rental Status</td>\n"
+          ."</tr>\n";
 
-			if ($res->num_rows === 0) {
-				echo "No videos exist";
-			}
-			else {
-				echo "<table>\n";
+  				for ($row_no = ($res->num_rows - 1); $row_no >= 0; $row_no--) {
+  					$res->data_seek($row_no);
+  	    		$row = $res->fetch_assoc();
 
-				// Output Column Headers
-				echo "<tr>\n"
-        ."<td>Video Name</td>\n"
-        ."<td>Video Category</td>\n"
-        ."<td>Video Length</td>\n"
-        ."<td>Video Rental Status</td>\n"
-        ."</tr>\n";
+  					$vidname = $row['name'];
+  					$vidcat = $row['category']; 
+  					$vidlen = $row['length'];
+  					$rented = $row['rented']; 
 
-				for ($row_no = ($res->num_rows - 1); $row_no >= 0; $row_no--) {
-					$res->data_seek($row_no);
-	    		$row = $res->fetch_assoc();
+  					if ($rented === 0) {
+  						$rented = 'available';
+              $checkoutBtnText = 'Checkout';
+  					}
+  					else {
+  						$rented = 'checked out';
+              $checkoutBtnText = 'Checkin';
+  					}
 
-					$vidname = $row['name'];
-					$vidcat = $row['category']; 
-					$vidlen = $row['length'];
-					$rented = $row['rented']; 
+  					echo "<tr>\n"
+          	."<td>$vidname</td>\n"
+          	."<td>$vidcat</td>\n"
+          	."<td>$vidlen</td>\n"
+          	."<td>$rented</td>\n"
+            ."<td><input type=\"button\" value=\"$checkoutBtnText\" onclick=\"updateCheckout('$checkoutBtnText', '$vidname');\"></td>\n"
+          	."<td><input type=\"button\" value=\"Delete\" onclick=\"deleteVid('$vidname');\"></td>\n"
+          	."</tr>\n";
+  				}
 
-					if ($rented === 0) {
-						$rented = 'available';
-					}
-					else {
-						$rented = 'checked out';
-					}
-
-					echo "<tr>\n"
-        	."<td>$vidname</td>\n"
-        	."<td>$vidcat</td>\n"
-        	."<td>$vidlen</td>\n"
-        	."<td>$rented</td>\n"
-        	.'<td><input type="button" value="Delete" onclick="deleteVid();"></td>\n'
-        	."</tr>\n";
-				}
-
-				echo '</table>';
-			}
-
-		?>
+  				echo "</table>\n";
+  			}
+  		?>
+    </div>
   </div>
 </body>
 </html>
