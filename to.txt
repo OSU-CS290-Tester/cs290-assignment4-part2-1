@@ -5,3 +5,7 @@ Tasks: Finished the add video form. Created a table that is populated with all p
 Start: Thu, 12 Feb 2015 16:30:42 -0800
 End: Thu, 12 Feb 2015 19:11:42 -0800
 Tasks: finished the video table, the delete all functionality, check out/in functionality. Currently in the middle of the filtering functionality.
+
+Start: Fri, 13 Feb 2015 16:39:38 -0800
+End: Fri, 13 Feb 2015 18:39:38 -0800
+Tasks: webpage is feature complete. testing is done. javascript conforms to standards. html is validated. php code needs to be cleaned up.
