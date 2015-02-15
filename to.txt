@@ -9,3 +9,7 @@ Tasks: finished the video table, the delete all functionality, check out/in func
 Start: Fri, 13 Feb 2015 16:39:38 -0800
 End: Fri, 13 Feb 2015 18:39:38 -0800
 Tasks: webpage is feature complete. testing is done. javascript conforms to standards. html is validated. php code needs to be cleaned up.
+
+Start: Sat, 14 Feb 2015 22:05:53 -0800
+End: Sat, 14 Feb 2015 22:14:53 -0800
+Tasks: cleaned up php code.
