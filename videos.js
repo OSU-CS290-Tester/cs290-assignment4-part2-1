@@ -11,11 +11,13 @@ function checkAddVidFields() {
   var showMsg = false;
 
   if (vidName === '') {
+    // Output correct message when user did not enter a video name
     msg += ' Video Name';
     showMsg = true;
   }
 
   if (vidCat === 'showAllCats') {
+    // Do not allow the user to user reserved name
     if (showMsg) {
       msg += '. Please rename category field, this value is a reserved value.';
     }

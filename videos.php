@@ -34,14 +34,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 		// Add values to SQL insert statement
 		if (!$stmt->bind_param("ssii", $vidname, $vidcat, $vidlen, $rented)) {
-		    echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
-		    die();
+	   	echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+		  die();
 		}
 
 		// Execute sql statement
 		if (!$stmt->execute()) {
-		    echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-		    die();
+		  echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+		  die();
 		}
 	}
   else if (count($_POST) > 0 && isset($_POST['deletevid'])) {
@@ -56,14 +56,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Add values to SQL insert statement
     $vidname = $_POST['deletevid'];
     if (!$stmt->bind_param("s", $vidname)) {
-        echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
-        die();
+      echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+      die();
     }
 
     // Execute sql statement
     if (!$stmt->execute()) {
-        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-        die();
+      echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+      die();
     }
   }
   else if (count($_POST) > 0 && isset($_POST['checkout']) && isset($_POST['name'])) {
@@ -79,18 +79,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $vidname = $_POST['name'];
     $rented = $_POST['checkout'] === "true" ? 1 : 0; // 1 means true. 0 means false.
     if (!$stmt->bind_param("is", $rented, $vidname)) {
-        echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
-        die();
+      echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+      die();
     }
 
     // Execute sql statement
     if (!$stmt->execute()) {
-        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-        die();
+      echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+      die();
     }
   }
   else if (count($_POST) > 0 && isset($_POST['deleteall']) && $_POST['deleteall'] === 'true') {
-    // Delete all vids 
+    // Take care the case where we are deleting all vids 
 
     // Prepare the insert statment
     if (!($stmt = $mysqli->prepare("DELETE FROM video"))) {
@@ -100,8 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Execute sql statement
     if (!$stmt->execute()) {
-        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-        die();
+      echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+      die();
     }
   }
 }
@@ -140,10 +140,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?php
         $filtering = false;
         if (count($_POST) > 0 && isset($_POST['filter']) && $_POST['filter'] !== 'showAllCats') {
+          // Filter by the desired category
           $filtering = true;
           $selectStatm = "SELECT name, category, length, rented FROM video WHERE category=?";
         }
         else {
+          // Not filtering, so get all videos
           $selectStatm = "SELECT name, category, length, rented FROM video";
         }
 
@@ -156,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           // Add values to SQL insert statement
           $cat = $_POST['filter'];
           if (!$stmt->bind_param("s", $cat)) {
-              echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+            echo "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
           }
         }
 
@@ -168,9 +170,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   		    echo "Getting result set failed: (" . $stmt->errno . ") " . $stmt->error;
   			}
 
-        // if ($res->num_rows === 0) {
-        // }
-  			// else {
         if (!$filtering) {
           generateFilter();
         }
